@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>IntegretyAI — Gestão Inteligente de Riscos Psicossociais</title>
+<style>
+  :root{
+    --rosa: #F6A7C9;
+    --rosa-escuro: #e888b3;
+    --amarelo: #FFD86B;
+    --amarelo-escuro: #f5c23f;
+    --verde: #4D8C63;
+    --grafite: #1F1F1F;
+    --branco: #FFFFFF;
+    --bg: #F7EDEA;
+    --card-shadow: 0 6px 18px rgba(31,31,31,0.06);
+    --radius-card: 20px;
+    --radius-btn: 12px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    font-family: 'Poppins','Segoe UI',system-ui,-apple-system,sans-serif;
+    color: var(--grafite);
+    -webkit-font-smoothing: antialiased;
+    min-height:100vh;
+  }
+  #app{
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
+  }
+  @media (min-width: 481px){
+    body{
+      background: linear-gradient(180deg,#f0dfe6,#f7ede4);
+      display:flex;
+      justify-content:center;
+      padding: 24px 0;
+    }
+    #app{
+      min-height: 90vh;
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(31,31,31,0.18);
+      overflow: hidden;
+    }
+  }
+  .screen{ display:none; flex-direction:column; flex:1; padding: 28px 22px 100px; animation: fadeIn .25s ease; }
+  .screen.active{ display:flex; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  h1,h2,h3,p{ margin:0; }
+  .eyebrow{ font-size:12px; font-weight:600; letter-spacing:.06em; color:#8a5a72; text-transform:uppercase; }
+
+  /* ---------- LOGIN ---------- */
+  .login-screen{ padding-top: 46px; align-items:stretch; }
+  .logo-wrap{ text-align:center; margin-bottom: 30px; }
+  .logo{ font-size: 30px; font-weight:700; color: var(--grafite); letter-spacing:-0.5px;}
+  .logo span{ color: var(--rosa-escuro); }
+  .logo-antenna{ display:inline-block; margin-left:2px; }
+  .role-tabs{ display:flex; border-radius: var(--radius-btn); overflow:hidden; margin-bottom:26px; box-shadow: var(--card-shadow);}
+  .role-tab{ flex:1; padding:16px 6px; text-align:center; font-weight:700; font-size:14.5px; background:var(--amarelo); color:var(--grafite); cursor:pointer; border:none; transition:.15s; }
+  .role-tab.active{ background: var(--rosa); color:#fff; }
+  .role-tab:not(.active):hover{ background: var(--amarelo-escuro); }
+
+  .field{ margin-bottom:14px; }
+  .field input{
+    width:100%; padding:16px 18px; border-radius:14px; border:1px solid #eadfdc;
+    background:#fbf6f4; font-family:inherit; font-size:14px; font-weight:600; letter-spacing:.02em;
+    color:#7a3e5a; outline:none;
+  }
+  .field input::placeholder{ color:#b9a3ac; font-weight:600; text-transform:uppercase; font-size:12.5px; letter-spacing:.05em;}
+  .field input:focus{ border-color: var(--rosa); background:#fff; }
+
+  .btn-primary{
+    width:100%; padding:16px; border:none; border-radius: var(--radius-btn);
+    background: var(--rosa); color:#fff; font-weight:700; font-size:15px; cursor:pointer;
+    box-shadow: 0 8px 16px rgba(246,167,201,0.45); transition:.15s;
+  }
+  .btn-primary:hover{ background: var(--rosa-escuro); transform: translateY(-1px); }
+  .btn-primary:active{ transform: translateY(0); }
+  .btn-primary.verde{ background:var(--verde); box-shadow:0 8px 16px rgba(77,140,99,.35);}
+  .btn-primary.verde:hover{ background:#3d7351; }
+
+  .hint{ text-align:center; font-size:12px; color:#9a7f8a; margin-top:16px; line-height:1.5; }
+  .error-msg{ color:#c0466e; font-size:12.5px; font-weight:600; text-align:center; margin-top:10px; min-height:16px; }
+
+  .login-footer-icons{ display:flex; justify-content:center; gap:14px; margin-top:26px; }
+  .login-footer-icons .circle{ width:52px; height:52px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:var(--card-shadow); font-size:20px; }
+  .footer-tag{ text-align:center; margin-top:16px; font-size:13px; color:#5c4650; font-weight:600; line-height:1.5;}
+
+  /* ---------- HEADER (post-login) ---------- */
+  .top-banner{
+    background: var(--grafite);
+    color:#fff;
+    margin: -28px -22px 24px;
+    padding: 26px 22px 22px;
+    border-bottom-right-radius: 34px;
+    position:relative;
+  }
+  .top-banner.rh, .top-banner.gestao{ background: #6a3452; }
+  .top-banner .greet-eyebrow{ font-size:13px; font-weight:700; opacity:.85; }
+  .top-banner .greet-name{ font-size:22px; font-weight:700; margin-top:2px; }
+  .role-badge{
+    position:absolute; bottom:-14px; right:16px; background:var(--amarelo); color:var(--grafite);
+    font-size:11px; font-weight:700; padding:8px 14px; border-radius:10px; text-transform:uppercase; letter-spacing:.03em;
+    box-shadow: var(--card-shadow);
+  }
+
+  /* ---------- CARDS ---------- */
+  .card{ background:#fff; border-radius: var(--radius-card); padding:20px; box-shadow: var(--card-shadow); margin-bottom:18px; }
+  .card-pink{ background: var(--rosa); color:#fff; }
+  .card-yellow{ background: var(--amarelo); }
+  .card-title-pill{
+    display:inline-block; background:var(--amarelo); color:var(--grafite); font-weight:700; font-size:13px;
+    padding:12px 18px; border-radius:12px; margin-bottom:16px;
+  }
+
+  .checkin-question{ font-weight:700; font-size:14.5px; margin-bottom:16px; color:#fff; text-transform:uppercase; letter-spacing:.02em;}
+  .emoji-row{ display:flex; justify-content:space-between; gap:8px; margin-bottom:18px; }
+  .emoji-btn{
+    flex:1; aspect-ratio:1; border-radius:50%; border:3px solid transparent; background:#fdeaf1;
+    font-size: clamp(20px,6vw,26px); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.15s;
+  }
+  .emoji-btn.selected{ border-color:#fff; background:#fff2f7; transform:scale(1.08); box-shadow:0 4px 10px rgba(0,0,0,.12);}
+  .stress-label{ color:#fff; font-size:12px; font-weight:700; margin-bottom:8px; text-transform:uppercase; letter-spacing:.03em;}
+  input[type=range]{ width:100%; accent-color:#fff; }
+  .stress-value{ text-align:center; color:#fff; font-weight:700; font-size:24px; margin:6px 0 14px; }
+  .anon-tag{ text-align:center; color:#fff; font-size:11px; font-weight:700; letter-spacing:.06em; margin-top:14px; opacity:.9;}
+
+  .nav-card{
+    display:flex; align-items:center; gap:16px; background:#fff; padding:18px 20px; border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow); cursor:pointer; margin-bottom:16px; transition:.15s; border:1px solid transparent;
+  }
+  .nav-card:hover{ border-color: var(--rosa); transform: translateY(-1px); }
+  .nav-card .icon-circle{ width:44px; height:44px; border-radius:50%; background:#fce4ee; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;}
+  .nav-card .label{ font-weight:700; font-size:15.5px; }
+  .nav-card .chev{ margin-left:auto; color:#c9a8b8; font-size:18px; }
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottom-nav{
+    position:absolute; bottom:0; left:0; right:0; background:#fff;
+    display:flex; justify-content:space-around; padding:12px 8px calc(12px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 14px rgba(0,0,0,.06); border-top-left-radius:20px; border-top-right-radius:20px;
+  }
+  .bottom-nav button{
+    background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:4px;
+    font-size:10.5px; font-weight:700; color:#b9a3ac; cursor:pointer; padding:4px 8px;
+  }
+  .bottom-nav button.active{ color: var(--rosa-escuro); }
+  .bottom-nav button .bn-icon{ font-size:19px; }
+
+  /* ---------- BACK BAR ---------- */
+  .back-bar{ display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .back-btn{ background:#fff; border:none; width:38px; height:38px; border-radius:50%; box-shadow:var(--card-shadow); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .back-title{ font-size:18px; font-weight:700; }
+
+  /* ---------- DENUNCIA ---------- */
+  .cat-tabs{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .cat-tab{ flex:1; min-width:90px; padding:12px 8px; text-align:center; border-radius:12px; border:2px solid #f0dbe4; background:#fff; font-weight:700; font-size:12.5px; cursor:pointer; color:#8a5a72; }
+  .cat-tab.active{ background:var(--rosa); border-color:var(--rosa); color:#fff; }
+  .consolation-box{ background:#fdeef4; border-left:4px solid var(--rosa); padding:14px 16px; border-radius:12px; font-size:13.5px; line-height:1.55; margin-bottom:16px; color:#6b3a53;}
+  textarea{
+    width:100%; min-height:120px; border-radius:14px; border:1px solid #eadfdc; padding:14px 16px;
+    font-family:inherit; font-size:14px; resize:vertical; outline:none; background:#fbf6f4; color:#4a3540;
+  }
+  textarea:focus{ border-color:var(--rosa); background:#fff; }
+  .secure-note{ font-size:11.5px; color:#8a5a72; margin:10px 0 18px; line-height:1.5; text-align:center; }
+
+  .confirm-wrap{ text-align:center; padding-top:30px; }
+  .confirm-icon{ width:80px; height:80px; border-radius:50%; background:#e4f2e8; display:flex; align-items:center; justify-content:center; font-size:38px; margin:0 auto 20px;}
+  .confirm-wrap h2{ font-size:20px; margin-bottom:10px; }
+  .confirm-wrap p{ font-size:13.5px; color:#6b5a63; line-height:1.6; margin-bottom:8px;}
+  .ai-tag-box{ background:#eef7f0; border-radius:14px; padding:14px; margin:18px 0; font-size:12.5px; color:#2f5c3f; font-weight:600; text-align:left; }
+
+  /* ---------- APOIO ---------- */
+  .apoio-hero{ background:var(--rosa); color:#fff; border-radius:var(--radius-card); padding:24px 20px; text-align:center; margin-bottom:20px; }
+  .apoio-hero h2{ font-size:19px; margin-bottom:6px; }
+  .apoio-hero p{ font-size:13px; opacity:.95; }
+  .apoio-detail{ animation: fadeIn .2s ease; }
+  .chat-window{ background:#fdf9f8; border-radius:14px; padding:14px; height:230px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:12px; border:1px solid #f0e4e0;}
+  .msg{ max-width:78%; padding:9px 13px; border-radius:14px; font-size:13px; line-height:1.4; }
+  .msg.me{ align-self:flex-end; background:var(--rosa); color:#fff; border-bottom-right-radius:4px; }
+  .msg.them{ align-self:flex-start; background:#fff; border:1px solid #eee; border-bottom-left-radius:4px; }
+  .chat-input-row{ display:flex; gap:8px; }
+  .chat-input-row input{ flex:1; padding:12px 14px; border-radius:12px; border:1px solid #eadfdc; font-family:inherit; font-size:13.5px; outline:none;}
+  .chat-input-row button{ background:var(--rosa); color:#fff; border:none; border-radius:12px; padding:0 16px; font-weight:700; cursor:pointer; }
+  .small-form-row{ margin-bottom:12px; }
+  .small-form-row label{ font-size:11.5px; font-weight:700; color:#8a5a72; text-transform:uppercase; display:block; margin-bottom:6px;}
+  .small-form-row input, .small-form-row select{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid #eadfdc; font-family:inherit; font-size:13.5px; outline:none; background:#fbf6f4;}
+
+  /* ---------- RH ---------- */
+  .chart-card{ background:var(--amarelo); border-radius:var(--radius-card); padding:20px; margin-bottom:18px;}
+  .chart-card .row-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .chart-card svg{ width:100%; height:auto; }
+  .metric-label{ font-weight:700; font-size:13px; margin-bottom:2px; }
+  .metric-value{ font-size:26px; font-weight:700; }
+  .metric-sub{ font-size:22px; font-weight:700; margin-top:14px; }
+  .alert-item{ font-size:13px; font-weight:600; color:#7a4a2f; padding:8px 0; border-bottom:1px dashed #f0dcae; }
+  .alert-item:last-child{ border-bottom:none; }
+  .sector-row{ display:flex; justify-content:space-between; font-weight:700; font-size:14.5px; padding:8px 0; }
+  .sector-tag{ font-size:11px; padding:3px 8px; border-radius:8px; margin-left:6px; font-weight:700; }
+  .tag-alto{ background:#fbdada; color:#a13232; }
+  .tag-medio{ background:#fdeecb; color:#8a6212; }
+  .tag-baixo{ background:#dcf0e2; color:#2f6b45; }
+
+  .ai-box{ background:#fff; border-radius:var(--radius-card); padding:20px; box-shadow:var(--card-shadow); margin-bottom:18px; }
+  .ai-box h3{ font-size:15px; margin-bottom:4px; }
+  .ai-box .sub{ font-size:12px; color:#8a7580; margin-bottom:14px; }
+  .ai-input-row{ display:flex; gap:8px; margin-bottom:12px; }
+  .ai-input-row input{ flex:1; padding:12px 14px; border-radius:12px; border:1px solid #eadfdc; font-family:inherit; font-size:13.5px; outline:none;}
+  .ai-input-row button{ background:var(--verde); color:#fff; border:none; border-radius:12px; padding:0 16px; font-weight:700; cursor:pointer; }
+  .ai-result{ background:#eef7f0; border-left:4px solid var(--verde); border-radius:10px; padding:12px 14px; font-size:13px; color:#2f5c3f; line-height:1.55; display:none; }
+  .ai-result.show{ display:block; }
+  .ai-thinking{ font-size:12.5px; color:#8a7580; font-style:italic; display:none; }
+  .ai-thinking.show{ display:block; }
+
+  /* ---------- GESTAO ---------- */
+  .kpi-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+  .kpi-card{ background:#fff; border-radius:16px; padding:16px; box-shadow:var(--card-shadow); text-align:center; }
+  .kpi-card .val{ font-size:22px; font-weight:700; color:var(--verde); }
+  .kpi-card.warn .val{ color:#c0466e; }
+  .kpi-card .lab{ font-size:11px; font-weight:700; color:#8a7580; text-transform:uppercase; margin-top:4px; }
+  .doc-row{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f1e6e3; font-size:13.5px; font-weight:600; }
+  .doc-row:last-child{ border-bottom:none; }
+  .doc-row button{ background:var(--rosa); color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
+
+  ::-webkit-scrollbar{ width:6px; }
+  ::-webkit-scrollbar-thumb{ background:#e0c3ce; border-radius:6px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= LOGIN ================= -->
+  <div class="screen login-screen active" id="screen-login">
+    <div class="logo-wrap">
+      <div class="logo">Integrety<span>AI</span> <span class="logo-antenna">📡</span></div>
+    </div>
+
+    <div class="role-tabs">
+      <button class="role-tab active" data-role="funcionario" onclick="selectRole('funcionario')">Funcionário</button>
+      <button class="role-tab" data-role="rh" onclick="selectRole('rh')">RH</button>
+      <button class="role-tab" data-role="gestao" onclick="selectRole('gestao')">Gestão</button>
+    </div>
+
+    <div class="field">
+      <input type="email" id="login-email" placeholder="E-MAIL" autocomplete="off">
+    </div>
+    <div class="field">
+      <input type="password" id="login-senha" placeholder="SENHA" autocomplete="off">
+    </div>
+
+    <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    <div class="error-msg" id="login-error"></div>
+
+    <div class="hint" id="login-hint">Use manoiferreira@gmail.com / senha 123<br>para acessar a área do funcionário</div>
+
+    <div class="login-footer-icons">
+      <div class="circle">🌊</div>
+      <div class="circle">🧑</div>
+    </div>
+    <div class="footer-tag">Inteligência artificial<br>para saúde mental corporativa</div>
+  </div>
+
+  <!-- ================= FUNCIONÁRIO: HOME ================= -->
+  <div class="screen" id="screen-func-home">
+    <div class="top-banner">
+      <div class="greet-eyebrow" id="func-greeting">Bem-vindo(a)</div>
+      <div class="greet-name">Manoí Ferreira</div>
+      <div class="role-badge">Área do Funcionário</div>
+    </div>
+
+    <div class="card-title-pill">FAÇA SEU CHECK-IN DIÁRIO!</div>
+
+    <div class="card card-pink" id="checkin-card">
+      <div class="checkin-question">Como você está se sentindo hoje?</div>
+      <div class="emoji-row" id="emoji-row">
+        <div class="emoji-btn" data-mood="feliz" onclick="selectMood(this)">😄</div>
+        <div class="emoji-btn" data-mood="neutro" onclick="selectMood(this)">😐</div>
+        <div class="emoji-btn" data-mood="cansado" onclick="selectMood(this)">😔</div>
+        <div class="emoji-btn" data-mood="irritado" onclick="selectMood(this)">😠</div>
+      </div>
+      <div class="stress-label">Nível de estresse:</div>
+      <input type="range" min="1" max="10" value="5" id="stress-slider" oninput="document.getElementById('stress-val').innerText=this.value">
+      <div class="stress-value" id="stress-val">5</div>
+      <button class="btn-primary" style="background:#fff;color:var(--rosa-escuro);box-shadow:none;" onclick="registrarCheckin()" id="checkin-btn">Registrar Resposta</button>
+      <div class="anon-tag">100% ANÔNIMO</div>
+    </div>
+
+    <div class="nav-card" onclick="abrirCanalRelato()">
+      <div class="icon-circle">🔒</div>
+      <div class="label">Canal de relato</div>
+      <div class="chev">›</div>
+    </div>
+    <div class="nav-card" onclick="showScreen('screen-apoio-home')">
+      <div class="icon-circle">🤝</div>
+      <div class="label">Rede de apoio</div>
+      <div class="chev">›</div>
+    </div>
+
+    <div style="flex:1"></div>
+    <div class="bottom-nav">
+      <button class="active" onclick="showScreen('screen-func-home')"><span class="bn-icon">🏠</span>Home</button>
+      <button onclick="abrirCanalRelato()"><span class="bn-icon">🔒</span>Relato</button>
+      <button onclick="showScreen('screen-apoio-home')"><span class="bn-icon">🤝</span>Apoio</button>
+      <button onclick="doLogout()"><span class="bn-icon">🚪</span>Sair</button>
+    </div>
+  </div>
+
+  <!-- ================= CANAL DE RELATO: TÓPICOS ================= -->
+  <div class="screen" id="screen-denuncia-cat">
+    <div class="back-bar">
+      <button class="back-btn" id="relato-back-btn" onclick="voltarNoRelato()">←</button>
+      <div class="back-title" id="relato-title">Canal de relato</div>
+    </div>
+
+    <!-- Nível 1: tópicos principais -->
+    <div id="relato-view-topicos">
+      <p style="font-size:12.5px;color:#8a5a72;line-height:1.55;margin-bottom:16px;">Escolha o tema que mais se aproxima do que você quer relatar. Seu relato é sempre anônimo e confidencial.</p>
+      <div class="nav-card" onclick="abrirTopico('organizacao')">
+        <div class="icon-circle">🗂️</div>
+        <div>
+          <div class="label">Organização e Gestão do Trabalho</div>
+          <div style="font-size:11.5px;font-weight:600;color:#9a7f8a;margin-top:3px;line-height:1.4;">Carga horária, metas, autonomia, ritmo e clareza de papéis</div>
+        </div>
+        <div class="chev">›</div>
+      </div>
+      <div class="nav-card" onclick="abrirTopico('interpessoal')">
+        <div class="icon-circle">🧑‍🤝‍🧑</div>
+        <div>
+          <div class="label">Relações Interpessoais</div>
+          <div style="font-size:11.5px;font-weight:600;color:#9a7f8a;margin-top:3px;line-height:1.4;">Assédio, discriminação, violência e conflitos</div>
+        </div>
+        <div class="chev">›</div>
+      </div>
+    </div>
+
+    <!-- Nível 2: subtópicos do tema escolhido -->
+    <div id="relato-view-subtopicos" style="display:none;"></div>
+
+    <!-- Nível 3: formulário de relato -->
+    <div id="relato-view-form" style="display:none;">
+      <div class="consolation-box" id="consolation-text"></div>
+      <textarea id="denuncia-texto" placeholder="Descreva o ocorrido no seu relato (opcional, mas quanto mais detalhes, melhor conseguimos te ajudar)..."></textarea>
+      <div class="secure-note">Seu relato será criptografado e analisado de forma estritamente confidencial. Não coletamos IP, dispositivo ou horário exato de envio.</div>
+      <button class="btn-primary" onclick="enviarDenuncia()">Enviar relato</button>
+    </div>
+  </div>
+
+  <!-- ================= RELATO: CONFIRMAÇÃO ================= -->
+  <div class="screen" id="screen-denuncia-confirm">
+    <div class="confirm-wrap">
+      <div class="confirm-icon">✅</div>
+      <h2>Relato enviado</h2>
+      <p>Recebemos sua mensagem de forma anônima e criptografada. Nossa equipe de RH/SESMT irá analisar o caso com prioridade.</p>
+      <div class="ai-tag-box" id="ai-classificacao-box"></div>
+      <button class="btn-primary verde" onclick="showScreen('screen-func-home')">Voltar para a Home</button>
+    </div>
+  </div>
+
+  <!-- ================= REDE DE APOIO: HOME ================= -->
+  <div class="screen" id="screen-apoio-home">
+    <div class="back-bar">
+      <button class="back-btn" onclick="showScreen('screen-func-home')">←</button>
+      <div class="back-title">Rede de apoio</div>
+    </div>
+
+    <div class="apoio-hero">
+      <h2>Você não está sozinho!</h2>
+      <p>Conte com a gente.</p>
+    </div>
+
+    <div class="nav-card" onclick="showScreen('screen-apoio-psicologo')">
+      <div class="icon-circle">🧑‍⚕️</div>
+      <div class="label">Psicólogo parceiro</div>
+      <div class="chev">›</div>
+    </div>
+    <div class="nav-card" onclick="showScreen('screen-apoio-chat')">
+      <div class="icon-circle">💬</div>
+      <div class="label">Linha de escuta</div>
+      <div class="chev">›</div>
+    </div>
+    <div class="nav-card" onclick="showScreen('screen-apoio-juridico')">
+      <div class="icon-circle">⚖️</div>
+      <div class="label">Jurídico pró-bono</div>
+      <div class="chev">›</div>
+    </div>
+  </div>
+
+  <!-- ---- Apoio: Psicólogo ---- -->
+  <div class="screen" id="screen-apoio-psicologo">
+    <div class="back-bar">
+      <button class="back-btn" onclick="showScreen('screen-apoio-home')">←</button>
+      <div class="back-title">Psicólogo parceiro</div>
+    </div>
+    <div class="card apoio-detail">
+      <p style="font-size:13.5px;line-height:1.6;margin-bottom:16px;color:#5c4650;">Agende um atendimento individual e sigiloso com um de nossos psicólogos parceiros. Nenhuma informação é compartilhada com sua liderança ou RH.</p>
+      <div class="small-form-row">
+        <label>Melhor período</label>
+        <select id="psico-periodo">
+          <option>Manhã</option>
+          <option>Tarde</option>
+          <option>Noite</option>
+        </select>
+      </div>
+      <div class="small-form-row">
+        <label>Formato</label>
+        <select id="psico-formato">
+          <option>Videochamada</option>
+          <option>Presencial (parceiro na sua cidade)</option>
+        </select>
+      </div>
+      <button class="btn-primary verde" onclick="agendarPsicologo()">Solicitar agendamento sigiloso</button>
+      <p id="psico-confirm" style="display:none;margin-top:14px;font-size:13px;color:#2f5c3f;font-weight:600;">✅ Solicitação enviada! Um parceiro entrará em contato pelo canal seguro do app em até 24h.</p>
+    </div>
+  </div>
+
+  <!-- ---- Apoio: Linha de escuta (chat) ---- -->
+  <div class="screen" id="screen-apoio-chat">
+    <div class="back-bar">
+      <button class="back-btn" onclick="showScreen('screen-apoio-home')">←</button>
+      <div class="back-title">Linha de escuta 24h</div>
+    </div>
+    <div class="card apoio-detail">
+      <div class="chat-window" id="chat-window">
+        <div class="msg them">Olá! Aqui é a Linha de Escuta do IntegretyAI. Estou aqui para te ouvir, sem julgamentos. Como você está se sentindo agora?</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Digite sua mensagem..." onkeydown="if(event.key==='Enter')enviarChat()">
+        <button onclick="enviarChat()">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- Apoio: Jurídico ---- -->
+  <div class="screen" id="screen-apoio-juridico">
+    <div class="back-bar">
+      <button class="back-btn" onclick="showScreen('screen-apoio-home')">←</button>
+      <div class="back-title">Jurídico pró-bono</div>
+    </div>
+    <div class="card apoio-detail">
+      <p style="font-size:13.5px;line-height:1.6;margin-bottom:14px;color:#5c4650;">Tire dúvidas rápidas e gratuitas sobre seus direitos trabalhistas e proteção contra assédio e discriminação, com orientação jurídica ocupacional.</p>
+      <div class="consolation-box">📌 Você tem direito a um ambiente de trabalho psicologicamente seguro, conforme a NR-1. Relatos de assédio podem ser feitos de forma anônima e não podem gerar retaliação.</div>
+      <div class="small-form-row">
+        <label>Sua dúvida</label>
+        <input type="text" id="juridico-duvida" placeholder="Ex: posso ser demitido por relatar uma situação?">
+      </div>
+      <button class="btn-primary verde" onclick="tirarDuvidaJuridica()">Enviar dúvida</button>
+      <p id="juridico-resp" style="display:none;margin-top:14px;font-size:13px;color:#2f5c3f;font-weight:600;line-height:1.5;"></p>
+    </div>
+  </div>
+
+  <!-- ================= RH: DASHBOARD ================= -->
+  <div class="screen" id="screen-rh-home">
+    <div class="top-banner rh">
+      <div class="greet-eyebrow">Bem-vindo(a)</div>
+      <div class="greet-name">Anna Caroline Andrade</div>
+      <div class="role-badge">Área do RH</div>
+    </div>
+
+    <div class="chart-card">
+      <div class="row-top">
+        <svg viewBox="0 0 220 110" style="max-width:58%;">
+          <line x1="20" y1="10" x2="20" y2="90" stroke="#e8c064" stroke-width="1"/>
+          <line x1="20" y1="90" x2="210" y2="90" stroke="#e8c064" stroke-width="1"/>
+          <polyline points="20,80 60,55 100,50 140,25 180,15" fill="none" stroke="#e8558f" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="20" cy="80" r="3.5" fill="#e8558f"/>
+          <circle cx="60" cy="55" r="3.5" fill="#e8558f"/>
+          <circle cx="100" cy="50" r="3.5" fill="#e8558f"/>
+          <circle cx="140" cy="25" r="3.5" fill="#e8558f"/>
+          <circle cx="180" cy="15" r="3.5" fill="#e8558f"/>
+          <text x="10" y="8" font-size="8" fill="#7a5c1f">40</text>
+          <text x="10" y="48" font-size="8" fill="#7a5c1f">20</text>
+          <text x="10" y="93" font-size="8" fill="#7a5c1f">0</text>
+          <text x="14" y="103" font-size="7" fill="#7a5c1f">2021</text>
+          <text x="170" y="103" font-size="7" fill="#7a5c1f">2025</text>
+        </svg>
+        <div>
+          <div class="metric-label">Risco de Burnout</div>
+          <div class="metric-value">BAIXO</div>
+          <div class="metric-sub">3,2/10</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:12px;">Alertas</h3>
+      <div class="alert-item" style="color:#7a3e5a;">🔴 3 relatos aguardando análise</div>
+      <div class="alert-item" style="color:#7a3e5a;">🟠 Quantidade de check-in abaixo da meta</div>
+      <div class="alert-item" style="color:#7a3e5a;">🟠 Aumento de risco em "Marketing"</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:8px;">Sobrecarga por setor</h3>
+      <div class="sector-row">Vendas <span><span class="sector-tag tag-alto">Alto</span> +30%</span></div>
+      <div class="sector-row">TI <span><span class="sector-tag tag-medio">Médio</span> +12%</span></div>
+      <div class="sector-row">Marketing <span><span class="sector-tag tag-medio">Médio</span> +8%</span></div>
+      <div class="sector-row">Financeiro <span><span class="sector-tag tag-baixo">Baixo</span> +2%</span></div>
+      <div class="sector-row">RH <span><span class="sector-tag tag-baixo">Baixo</span> -5%</span></div>
+    </div>
+
+    <div class="ai-box">
+      <h3>🤖 IA — Gerador de Plano de Ação</h3>
+      <div class="sub">Digite o tipo de estressor identificado e receba um rascunho de plano de ação preventivo.</div>
+      <div class="ai-input-row">
+        <input type="text" id="ai-input" placeholder="Ex: sobrecarga, assédio, prazos..." onkeydown="if(event.key==='Enter')gerarPlanoIA()">
+        <button onclick="gerarPlanoIA()">Gerar</button>
+      </div>
+      <div class="ai-thinking" id="ai-thinking">Analisando padrões de check-in e relatos…</div>
+      <div class="ai-result" id="ai-result"></div>
+    </div>
+
+    <div class="nav-card" onclick="alert('Relatório legal NR-1 gerado (simulação). O PDF consolidado seria disponibilizado para download aqui.')">
+      <div class="icon-circle">📄</div>
+      <div class="label">Emitir Relatório Legal NR-1</div>
+      <div class="chev">›</div>
+    </div>
+
+    <div style="flex:1"></div>
+    <div class="bottom-nav">
+      <button class="active" onclick="showScreen('screen-rh-home')"><span class="bn-icon">📊</span>Dashboard</button>
+      <button onclick="doLogout()"><span class="bn-icon">🚪</span>Sair</button>
+    </div>
+  </div>
+
+  <!-- ================= GESTÃO ================= -->
+  <div class="screen" id="screen-gestao-home">
+    <div class="top-banner gestao">
+      <div class="greet-eyebrow">Bem-vindo(a)</div>
+      <div class="greet-name">Sofia Marins</div>
+      <div class="role-badge">Área da Gestão</div>
+    </div>
+
+    <div class="card card-yellow">
+      <p style="font-weight:700;font-size:14px;line-height:1.5;">ANALISE O ANDAMENTO DA EMPRESA E CONFIRA PROPOSTAS PARA POTENCIALIZAR SEU DESEMPENHO</p>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="val">3,2/10</div><div class="lab">Risco geral</div></div>
+      <div class="kpi-card warn"><div class="val">8,4%</div><div class="lab">Turnover</div></div>
+      <div class="kpi-card"><div class="val">92%</div><div class="lab">Adesão check-in</div></div>
+      <div class="kpi-card warn"><div class="val">3</div><div class="lab">Relatos abertos</div></div>
+    </div>
+
+    <div class="nav-card" onclick="showScreen('screen-relatorios')">
+      <div class="icon-circle">📑</div>
+      <div class="label">Relatórios</div>
+      <div class="chev">›</div>
+    </div>
+    <div class="nav-card" onclick="showScreen('screen-trilha')">
+      <div class="icon-circle">🧑‍🤝‍🧑</div>
+      <div class="label">Trilha NR-1</div>
+      <div class="chev">›</div>
+    </div>
+
+    <div style="flex:1"></div>
+    <div class="bottom-nav">
+      <button class="active" onclick="showScreen('screen-gestao-home')"><span class="bn-icon">🏢</span>Painel</button>
+      <button onclick="doLogout()"><span class="bn-icon">🚪</span>Sair</button>
+    </div>
+  </div>
+
+  <!-- ---- Gestão: Relatórios ---- -->
+  <div class="screen" id="screen-relatorios">
+    <div class="back-bar">
+      <button class="back-btn" onclick="showScreen('screen-gestao-home')">←</button>
+      <div class="back-title">Relatórios</div>
+    </div>
+    <div class="card">
+      <div class="doc-row"><span>Relatório NR-1 — Junho/2026</span><button onclick="showScreen('screen-relatorio-nr1')">Ver relatório</button></div>
+      <div class="doc-row"><span>Clima organizacional — Q2</span><button onclick="alert('Download simulado: clima-q2.pdf')">Baixar</button></div>
+      <div class="doc-row"><span>Relatos consolidados (anônimo)</span><button onclick="alert('Download simulado: relatos-consolidados.pdf')">Baixar</button></div>
+    </div>
+  </div>
+
+  <!-- ---- Gestão: Relatório NR-1 completo ---- -->
+  <div class="screen" id="screen-relatorio-nr1">
+    <div class="back-bar">
+      <button class="back-btn" onclick="showScreen('screen-relatorios')">←</button>
+      <div class="back-title">Relatório NR-1</div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:6px;">Relatório de conformidade</div>
+      <h3 style="font-size:16.5px;margin-bottom:6px;">Gestão de Riscos Psicossociais — NR-1</h3>
+      <p style="font-size:12.5px;color:#7a6570;line-height:1.6;">Competência: Junho/2026 · Emitido por: IntegretyAI (RH/SESMT) · Responsável técnico: Anna Caroline Andrade</p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:14px;margin-bottom:12px;">1. Resumo executivo</h3>
+      <div class="sector-row"><span>Índice geral de risco psicossocial</span><span class="sector-tag tag-baixo">3,2/10 · Baixo</span></div>
+      <div class="sector-row"><span>Adesão ao check-in diário</span><span class="sector-tag tag-baixo">92%</span></div>
+      <div class="sector-row"><span>Relatos recebidos no período</span><span class="sector-tag tag-medio">8</span></div>
+      <div class="sector-row"><span>Relatos já triados/encerrados</span><span class="sector-tag tag-baixo">5</span></div>
+      <div class="sector-row"><span>Relatos em análise</span><span class="sector-tag tag-alto">3</span></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:14px;margin-bottom:10px;">2. Relatos por eixo temático</h3>
+      <div class="sector-row"><span>Organização e Gestão do Trabalho</span><span style="font-weight:700;">3</span></div>
+      <div class="alert-item" style="color:#7a6570;font-weight:500;">↳ Sobrecarga e Pressão Abusiva: 3 casos</div>
+      <div class="sector-row" style="margin-top:8px;"><span>Relações Interpessoais</span><span style="font-weight:700;">5</span></div>
+      <div class="alert-item" style="color:#7a6570;font-weight:500;">↳ Assédio Moral: 2 · Discriminação e Preconceito: 1 · Conflitos e Violência Psicológica: 2</div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:14px;margin-bottom:10px;">3. Sobrecarga por setor</h3>
+      <div class="sector-row">Vendas <span><span class="sector-tag tag-alto">Alto</span> +30%</span></div>
+      <div class="sector-row">TI <span><span class="sector-tag tag-medio">Médio</span> +12%</span></div>
+      <div class="sector-row">Marketing <span><span class="sector-tag tag-medio">Médio</span> +8%</span></div>
+      <div class="sector-row">Financeiro <span><span class="sector-tag tag-baixo">Baixo</span> +2%</span></div>
+      <div class="sector-row">RH <span><span class="sector-tag tag-baixo">Baixo</span> -5%</span></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:14px;margin-bottom:10px;">4. Ações preventivas implementadas</h3>
+      <div class="alert-item" style="color:#5c4650;">✅ Reunião de redistribuição de tarefas no setor de Vendas</div>
+      <div class="alert-item" style="color:#5c4650;">✅ Abertura de apuração sigilosa para 2 relatos de assédio moral</div>
+      <div class="alert-item" style="color:#5c4650;">✅ Reforço da trilha de liderança em segurança psicológica</div>
+      <div class="alert-item" style="color:#5c4650;">🔄 Pesquisa de pulso agendada para o setor de Marketing</div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:14px;margin-bottom:6px;">5. Recomendações da IA para o próximo ciclo</h3>
+      <div class="ai-tag-box" style="margin:0;">🤖 Priorizar o acompanhamento do setor de Vendas (sobrecarga +30%), manter o sigilo reforçado nos 3 relatos em análise e reavaliar metas do time de Marketing em até 30 dias.</div>
+    </div>
+
+    <div class="card" style="background:#eef7f0;">
+      <h3 style="font-size:14px;margin-bottom:6px;color:#2f5c3f;">6. Conclusão de conformidade</h3>
+      <p style="font-size:12.5px;color:#2f5c3f;line-height:1.6;">Com base nos indicadores apurados, a empresa mantém-se em conformidade com os requisitos de identificação, avaliação e gestão de riscos psicossociais previstos na NR-1 para o período avaliado.</p>
+    </div>
+
+    <button class="btn-primary verde" onclick="alert('Download simulado: relatorio-nr1-junho2026.pdf')">Baixar PDF (simulação)</button>
+  </div>
+
+  <!-- ---- Gestão: Trilha NR-1 ---- -->
+  <div class="screen" id="screen-trilha">
+    <div class="back-bar">
+      <button class="back-btn" onclick="showScreen('screen-gestao-home')">←</button>
+      <div class="back-title">Trilha NR-1</div>
+    </div>
+    <div class="card">
+      <div class="alert-item" style="color:#5c4650;">✅ Módulo 1 — Fundamentos da NR-1</div>
+      <div class="alert-item" style="color:#5c4650;">✅ Módulo 2 — Identificando riscos psicossociais</div>
+      <div class="alert-item" style="color:#5c4650;">🔄 Módulo 3 — Liderança e segurança psicológica (em andamento)</div>
+      <div class="alert-item" style="color:#5c4650;">⬜ Módulo 4 — Planos de ação e auditoria</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ---------------- DADOS DE LOGIN ----------------
+  const ROLES = {
+    funcionario: { email:'manoiferreira@gmail.com', senha:'123', nome:'Manoí Ferreira', destino:'screen-func-home', hint:'Use manoiferreira@gmail.com / senha 123<br>para acessar a área do funcionário' },
+    rh:          { email:'annacarolineandrade@email.com', senha:'123', nome:'Anna Caroline Andrade', destino:'screen-rh-home', hint:'Use annacarolineandrade@email.com / senha 123<br>para acessar o dashboard do RH' },
+    gestao:      { email:'sofiamarins@email.com', senha:'123', nome:'Sofia Marins', destino:'screen-gestao-home', hint:'Use sofiamarins@email.com / senha 123<br>para acessar o painel de gestão' }
+  };
+  let currentRole = 'funcionario';
+
+  function selectRole(role){
+    currentRole = role;
+    document.querySelectorAll('.role-tab').forEach(t=>t.classList.toggle('active', t.dataset.role===role));
+    document.getElementById('login-hint').innerHTML = ROLES[role].hint;
+    document.getElementById('login-error').innerText = '';
+  }
+
+  function doLogin(){
+    const email = document.getElementById('login-email').value.trim().toLowerCase();
+    const senha = document.getElementById('login-senha').value.trim();
+    const role = ROLES[currentRole];
+    const errBox = document.getElementById('login-error');
+
+    if(email === role.email.toLowerCase() && senha === role.senha){
+      errBox.innerText = '';
+      if(currentRole === 'funcionario'){
+        document.querySelector('#screen-func-home .greet-name').innerText = role.nome;
+        const h = new Date().getHours();
+        document.getElementById('func-greeting').innerText = h<12 ? 'Bom dia' : (h<18 ? 'Boa tarde' : 'Boa noite');
+      } else if(currentRole === 'rh'){
+        document.querySelector('#screen-rh-home .greet-name').innerText = role.nome;
+      } else {
+        document.querySelector('#screen-gestao-home .greet-name').innerText = role.nome;
+      }
+      showScreen(role.destino);
+    } else {
+      errBox.innerText = 'E-mail ou senha incorretos para o perfil selecionado.';
+    }
+  }
+
+  function doLogout(){
+    document.getElementById('login-email').value='';
+    document.getElementById('login-senha').value='';
+    document.getElementById('login-error').innerText='';
+    showScreen('screen-login');
+  }
+
+  // ---------------- NAVEGAÇÃO ----------------
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  // ---------------- CHECK-IN ----------------
+  function selectMood(el){
+    document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function registrarCheckin(){
+    const selected = document.querySelector('.emoji-btn.selected');
+    if(!selected){ alert('Selecione um emoji antes de registrar.'); return; }
+    const btn = document.getElementById('checkin-btn');
+    btn.innerText = 'Check-in registrado ✓';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    setTimeout(()=>{ alert('Obrigado por compartilhar como você está! Seu registro é 100% anônimo e ajuda o RH a cuidar melhor do clima da equipe.'); }, 150);
+  }
+
+  // ---------------- CANAL DE RELATO (tópicos + subtópicos) ----------------
+  const TOPICOS = {
+    organizacao: {
+      titulo: 'Organização e Gestão do Trabalho',
+      icone: '🗂️',
+      subtopicos: {
+        sobrecarga: {
+          titulo: 'Sobrecarga e Pressão Abusiva',
+          desc: 'Metas comprovadamente inatingíveis, ameaças de demissão e jornadas exaustivas sistemáticas.',
+          consolo: 'Sentimos muito que você esteja enfrentando metas inatingíveis e jornadas exaustivas. Isso fere diretamente os princípios da NR-1, e sua saúde mental importa. Seu relato ajuda a reorganizar a carga da equipe.',
+          urgencia: 'Alta'
+        }
+      }
+    },
+    interpessoal: {
+      titulo: 'Relações Interpessoais',
+      icone: '🧑‍🤝‍🧑',
+      subtopicos: {
+        assedio_moral: {
+          titulo: 'Assédio Moral',
+          desc: 'Humilhações constantes, isolamento forçado, cobranças abusivas ou desqualificação pública.',
+          consolo: 'Sentimos muito que você esteja passando por isso. Assédio moral nunca é aceitável, e você fez a coisa certa ao relatar. Sua identidade é protegida durante todo o processo.',
+          urgencia: 'Alta'
+        },
+        assedio_sexual: {
+          titulo: 'Assédio Sexual',
+          desc: 'Abordagens, piadas, convites ou pressões com conotação sexual não consensual.',
+          consolo: 'Lamentamos profundamente o que você viveu. Nenhuma abordagem, piada ou pressão de conotação sexual é aceitável no ambiente de trabalho. Você será ouvido(a) com todo o cuidado e sigilo.',
+          urgencia: 'Alta'
+        },
+        discriminacao: {
+          titulo: 'Discriminação e Preconceito',
+          desc: 'Tratamento injusto por raça, gênero, orientação sexual, idade, PCD ou religião.',
+          consolo: 'Ninguém deveria ser tratado de forma diferente por quem é. Levamos discriminações de qualquer natureza muito a sério, e seu relato será tratado com prioridade e sigilo.',
+          urgencia: 'Alta'
+        },
+        conflitos: {
+          titulo: 'Conflitos e Violência Psicológica',
+          desc: 'Ameaças, gritos ou agressões verbais no ambiente de trabalho.',
+          consolo: 'Ambientes com ameaças, gritos ou agressões verbais não são normais nem toleráveis. Seu relato é essencial para que a situação seja apurada e a liderança orientada.',
+          urgencia: 'Média'
+        }
+      }
+    }
+  };
+  let topicoAtual = null;
+  let subtopicoAtual = null;
+  let relatoNivel = 1;
+
+  function abrirCanalRelato(){
+    relatoNivel = 1;
+    topicoAtual = null; subtopicoAtual = null;
+    document.getElementById('relato-title').innerText = 'Canal de relato';
+    document.getElementById('relato-view-topicos').style.display = 'block';
+    document.getElementById('relato-view-subtopicos').style.display = 'none';
+    document.getElementById('relato-view-form').style.display = 'none';
+    showScreen('screen-denuncia-cat');
+  }
+
+  function abrirTopico(chave){
+    topicoAtual = chave;
+    relatoNivel = 2;
+    const topico = TOPICOS[chave];
+    document.getElementById('relato-title').innerText = topico.titulo;
+    document.getElementById('relato-view-topicos').style.display = 'none';
+    document.getElementById('relato-view-form').style.display = 'none';
+
+    const container = document.getElementById('relato-view-subtopicos');
+    container.innerHTML = '';
+    Object.keys(topico.subtopicos).forEach(key=>{
+      const sub = topico.subtopicos[key];
+      const card = document.createElement('div');
+      card.className = 'nav-card';
+      card.onclick = ()=>selecionarSubtopico(key);
+      card.innerHTML = '<div class="icon-circle">'+topico.icone+'</div><div><div class="label">'+sub.titulo+'</div>' +
+        '<div style="font-size:11.5px;font-weight:600;color:#9a7f8a;margin-top:3px;line-height:1.4;">'+sub.desc+'</div></div><div class="chev">›</div>';
+      container.appendChild(card);
+    });
+    container.style.display = 'block';
+  }
+
+  function selecionarSubtopico(key){
+    subtopicoAtual = key;
+    relatoNivel = 3;
+    const sub = TOPICOS[topicoAtual].subtopicos[key];
+    document.getElementById('relato-title').innerText = sub.titulo;
+    document.getElementById('relato-view-subtopicos').style.display = 'none';
+    document.getElementById('consolation-text').innerText = sub.consolo;
+    document.getElementById('relato-view-form').style.display = 'block';
+  }
+
+  function voltarNoRelato(){
+    if(relatoNivel === 3){
+      abrirTopico(topicoAtual);
+    } else if(relatoNivel === 2){
+      abrirCanalRelato();
+    } else {
+      showScreen('screen-func-home');
+    }
+  }
+
+  function enviarDenuncia(){
+    const sub = TOPICOS[topicoAtual].subtopicos[subtopicoAtual];
+    document.getElementById('ai-classificacao-box').innerHTML =
+      '🤖 <strong>Classificação automática da IA:</strong><br>Tema: ' + TOPICOS[topicoAtual].titulo +
+      '<br>Subtema: ' + sub.titulo +
+      '<br>Urgência estimada: <strong>' + sub.urgencia + '</strong><br>Encaminhado ao RH/SESMT para triagem.';
+    document.getElementById('denuncia-texto').value = '';
+    showScreen('screen-denuncia-confirm');
+  }
+
+  // ---------------- REDE DE APOIO ----------------
+  function agendarPsicologo(){
+    document.getElementById('psico-confirm').style.display = 'block';
+  }
+  function enviarChat(){
+    const input = document.getElementById('chat-input');
+    const texto = input.value.trim();
+    if(!texto) return;
+    const win = document.getElementById('chat-window');
+    const me = document.createElement('div');
+    me.className = 'msg me';
+    me.innerText = texto;
+    win.appendChild(me);
+    input.value = '';
+    win.scrollTop = win.scrollHeight;
+    setTimeout(()=>{
+      const respostas = [
+        'Entendo. Obrigado por compartilhar isso comigo — sua fala é importante e será mantida em sigilo.',
+        'Isso parece pesado de carregar sozinho(a). Você já pensou em falar com o psicólogo parceiro pelo app?',
+        'Estou aqui com você. Quer me contar um pouco mais sobre o que tem sentido nos últimos dias?',
+        'Fico feliz que você tenha procurado ajuda. Isso é um passo importante para o seu bem-estar.'
+      ];
+      const resp = respostas[Math.floor(Math.random()*respostas.length)];
+      const them = document.createElement('div');
+      them.className = 'msg them';
+      them.innerText = resp;
+      win.appendChild(them);
+      win.scrollTop = win.scrollHeight;
+    }, 700);
+  }
+  function tirarDuvidaJuridica(){
+    const duvida = document.getElementById('juridico-duvida').value.trim().toLowerCase();
+    let resp = 'Nossa orientação jurídica ocupacional recebeu sua dúvida e retornará em breve com uma resposta detalhada, sem custos.';
+    if(duvida.includes('demit') || duvida.includes('retalia')){
+      resp = 'Não. A legislação protege o colaborador contra retaliação por relatos feitos de boa-fé. Demissões associadas a um relato podem configurar dispensa discriminatória.';
+    } else if(duvida.includes('anonim') || duvida.includes('sigilo')){
+      resp = 'Sim, seu relato é tratado de forma anônima: não coletamos dados de dispositivo, IP ou horário exato de envio.';
+    } else if(duvida.includes('prazo')){
+      resp = 'O prazo médio de triagem inicial de um relato pelo RH/SESMT é de até 5 dias úteis, podendo variar conforme a urgência classificada pela IA.';
+    }
+    const el = document.getElementById('juridico-resp');
+    el.innerText = '⚖️ ' + resp;
+    el.style.display = 'block';
+  }
+
+  // ---------------- IA: PLANO DE AÇÃO (RH) ----------------
+  function gerarPlanoIA(){
+    const val = document.getElementById('ai-input').value.trim().toLowerCase();
+    const thinking = document.getElementById('ai-thinking');
+    const result = document.getElementById('ai-result');
+    if(!val){ alert('Digite um estressor para a IA analisar (ex: prazos, sobrecarga, assédio).'); return; }
+    result.classList.remove('show');
+    thinking.classList.add('show');
+
+    const base = {
+      'sobrecarga': 'Redistribuir tarefas com apoio de matriz de prioridades, revisar prazos do time e instituir pausas obrigatórias entre entregas críticas.',
+      'prazo': 'Revisar cronogramas com folgas de segurança, escalonar entregas e treinar lideranças em planejamento realista de sprints.',
+      'assédio': 'Abrir investigação sigilosa imediata, afastar preventivamente o denunciado se necessário e reforçar treinamento de liderança em segurança psicológica.',
+      'assedio': 'Abrir investigação sigilosa imediata, afastar preventivamente o denunciado se necessário e reforçar treinamento de liderança em segurança psicológica.',
+      'discriminação': 'Instaurar comitê de ética para apuração, revisar políticas de diversidade e oferecer suporte psicológico à pessoa afetada.',
+      'discriminacao': 'Instaurar comitê de ética para apuração, revisar políticas de diversidade e oferecer suporte psicológico à pessoa afetada.',
+      'burnout': 'Reduzir carga de trabalho do setor identificado, oferecer sessões extras de suporte psicológico e monitorar check-ins diários por 30 dias.',
+      'turnover': 'Realizar entrevistas de saída estruturadas, mapear causas raiz e criar plano de retenção com foco em liderança e reconhecimento.'
+    };
+    let sugestao = null;
+    for(const key in base){
+      if(val.includes(key)){ sugestao = base[key]; break; }
+    }
+    if(!sugestao){
+      sugestao = 'Recomenda-se investigar a causa raiz junto às lideranças diretas, aplicar pesquisa rápida de pulso no setor afetado e monitorar os próximos check-ins antes de definir o plano de ação final.';
+    }
+    setTimeout(()=>{
+      thinking.classList.remove('show');
+      result.innerHTML = '<strong>Plano de ação sugerido:</strong><br>' + sugestao;
+      result.classList.add('show');
+    }, 900);
+  }
+
+  // saudação dinâmica inicial
+  (function(){
+    const h = new Date().getHours();
+    document.getElementById('func-greeting').innerText = h<12 ? 'Bom dia' : (h<18 ? 'Boa tarde' : 'Boa noite');
+  })();
+</script>
+</body>
+</html>
